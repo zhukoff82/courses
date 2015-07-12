@@ -35,27 +35,65 @@ print "File includes", num_elem, "elements"
 if choose_algorithm == 0 :
 	print "#1 straight forward algorithm"
 	start = time.time()
-	count = 0
+	inv_count = 0
   
-	for i in inp_array : 
-		j = i + 1
-		for j in inp_array : 
-			if i > j :
-				count = count + 1
+	for idx_i, val_i in enumerate( inp_array ) : 
+#                print idx_i, val_i
+		for idx_j, val_j in enumerate( inp_array[ idx_i + 1: ] ) : 
+#			print idx_i, val_i, idx_j, val_j
+			if val_i > val_j :
+				inv_count += 1
 
-	print "Number of inversions:", count
+	print "Number of inversions:", inv_count
 	end = time.time()
 	print "Execution time:", end - start, "sec"
 elif choose_algorithm == 1 :
 	print "#2 divide and conquer algorithm"
+	start = time.time()
 	def merge_sort( arr, len ) :	
-		print arr
-		i = len / 2 + len % 2
-		j = len / 2
+		inv_cnt = 0
+		i = len / 2 
+		j = len - i
 		lhs = arr[ 0:i ]
 		rhs = arr[ len - j: ]
-        	if i > 1 :
-        		merge_sort( lhs, i )
-			merge_sort( rhs, j )	
+        	if i > 0 :
+        		inv_cnt = merge_sort( lhs, i )
+			inv_cnt += merge_sort( rhs, j )
+			inv_cnt += merge( arr, lhs, rhs, i, j )
+		return inv_cnt
 
-	merge_sort( inp_array, num_elem )
+	def merge( orig_arr, lhs, rhs, len_l, len_r) :
+		inv_cnt = 0
+		i = 0
+		j = 0
+		k = 0
+		while ( len_l > 0 and len_r > 0 ) :
+			if lhs[ j ] <= rhs[ k ] :
+				orig_arr[ i ] = lhs[ j ]
+				len_l -= 1
+				j += 1
+			else :
+				orig_arr[ i ] = rhs[ k ]
+				len_r -= 1
+				k += 1
+				inv_cnt += len_l 
+			i += 1
+
+                while ( len_l > 0 ) :
+			orig_arr[ i ] = lhs[ j ]
+			len_l -= 1
+			j += 1
+			i += 1
+
+		while ( len_r > 0 ) :
+			orig_arr[ i ] = rhs[ k ]
+                        len_r -= 1
+			k += 1
+			i += 1
+
+		return inv_cnt
+
+	inv_count = merge_sort( inp_array, num_elem )
+       	print "Number of inversions: ", inv_count
+        end = time.time()
+        print "Execution time:", end - start, "sec"
